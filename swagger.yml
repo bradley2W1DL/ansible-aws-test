@@ -1,0 +1,78 @@
+# aws only supports v2.0 (not openapi 3)
+#
+# Make sure to use double-quotes ("), somehow single-quotes don't work with aws import-rest-api command
+#
+swagger: 2.0
+info:
+  version: 0.1.0
+  title: "{{ prefix }} AWS stack test"
+  description: Testing the provisioning of an AWS severless stack
+
+basePath: /v1
+schemes:
+  - https
+
+consumes:
+  - application/json
+produces:
+  - application/json
+
+paths:
+  /trivia:
+    get:
+      description: Get some random trivia questions
+      operationId: get_trivia
+      responses:
+        200:
+          description: a JSON array of trivia questions
+          schema:
+            $ref: "#/definitions/getTrivia"
+        400:
+          description: Bad Request
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+        500:
+          description: Server Error
+{% if LambdaArn is defined %}
+      x-amazon-apigateway-integration:
+        type: aws
+        uri: arn:aws:apigateway:{{ cfs.default_region }}:lambda:path/2015-03-31/functions/arn:aws:lambda:{{ cfs.defaut_region }}:{{ LambdaArn }}:function:trivia/invocations
+        credentials: "{{ APIGatewayRole }}"
+        httpMethod: POST
+        requestTemplates:
+          application/json: |
+            {
+              "parameters": {
+                "gateway": {
+                  "operationId": "get_trivia",
+                  "stage": "$context.stage",
+                  "request-id": "$context.requestId",
+                  "http-method": "$context.httpMethod"
+            }
+{% end %}
+
+# definitions
+definitions:
+  getTrivia:
+    type: object
+    properties:
+      response_code:
+        type: integer
+      results:
+        type: array
+        items:
+          $ref: "#/definitions/Question"
+    required:
+      - response_code
+      - results
+
+  Question:
+    type: object
+    properties:
+      category:
+        type: string
+      type:
+        type: string
+    additionalProperties: true

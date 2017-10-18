@@ -1,0 +1,32 @@
+---
+#
+# Assemble template fragments into single sam_template.yml
+#
+- name: create tmp_fragments directory
+  file:
+    path: .tmp_fragments
+    state: directory
+
+- name: move template_base into tmp directory
+  template:
+    src: template_base.yml
+    dest: .tmp_fragments/aaaa_template_base.yml
+
+- name: evaluate j2 templating
+  template:
+    src: sam_function.template.yml
+    dest: .tmp_fragments/function_{{ item }}.yml
+  vars:
+    function: "{{ item }}"
+  with_items: "{{ lambda_functions }}"
+
+- name: Assemble fragments into template yaml
+  assemble:
+    src: .tmp_fragments/
+    dest: ./sam_template.yml
+
+- name: remove tmp_directory
+  file:
+    path: .tmp_fragments
+    state: absent
+

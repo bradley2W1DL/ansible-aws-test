@@ -1,0 +1,73 @@
+---
+- hosts: localhost
+  vars:
+    env: development
+  vars_files:
+    - "secrets/{{ env }}.yml"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws.access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws.secret_key }}"
+    AWS_DEFAULT_REGION: "{{ aws.default_region }}"
+  connection: local
+
+  tasks:
+  # install prerequisites
+  - name: install babel cli
+    homebrew:
+      name: babel
+      state: present
+      # update_homebrew: yes
+  - name: install aws-cli
+    homebrew:
+      name: awscli
+      state: present
+  - name: make sure jq is installed
+    homebrew:
+      name: jq
+      state: present
+  - name: check for AWS connection
+    shell: aws s3 ls
+    register: aws_result
+    failed_when: aws_result.rc != 0
+
+  #
+  # Bundle up all functions in /lambda_functions dir
+  #
+  - include_role:
+      name: bundle_lambda_functions
+  #
+  # Create s3 bucket (if needed) and sync files
+  #
+  - include_role:
+      name: sync_functions_with_s3
+
+  #
+  # create AWS Lambda functions
+  #
+  #  - include_role:
+  #      name: provision_lambda
+  #  - include_role:
+  #      name: cleanup_lambda
+
+  - name: fetch files from s3 bucket
+    shell: aws s3 ls s3://{{ lambda_s3_bucket }} | grep \.zip$ | awk '{print $4}'
+    register: lambda_files
+
+  #
+  # New approach: use AWS SAM template to provision resources
+  #
+  - include_role:
+      name: generate_sam_template
+    vars:
+      lambda_functions: "{{ lambda_files.stdout_lines }}"
+
+  - name: generate cloud formation template
+    shell: aws cloudformation deploy --template-file serverless_output.yml --stack-name testrStack --capabilities CAPABILITY_IAM
+
+  - name: launch cloudformation stack
+    cloudformation:
+      stack_name: "{{ prefix }}-stack"
+      state: present
+      region: "{{ aws.default_region }}"
+      template: serverless_output.yml
+

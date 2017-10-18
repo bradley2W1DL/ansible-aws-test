@@ -1,0 +1,16 @@
+---
+- name: ensure zip directory exists
+  file:
+    path: "{{ playbook_dir }}/.tmp_lambda_dir"
+    state: directory
+
+- name: fetch list of Lambda function directories
+  shell: cd {{ playbook_dir }}/lambda_functions && find * -maxdepth 0 -type d
+  register: function_dirs
+
+- include_role:
+    name: package_function
+  vars:
+    function: "{{ item }}"
+    path: "{{ playbook_dir }}/lambda_functions/{{ item }}"
+  with_items: "{{ function_dirs.stdout_lines }}"

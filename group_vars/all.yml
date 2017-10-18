@@ -1,0 +1,9 @@
+prefix: testr
+lambda_s3_bucket: "{{prefix}}-lambda"
+stack_name: "{{prefix}}-service"
+rds_table_name: "{{ prefix}}-postgres-table"
+# this could be used to provision envs by developer
+# preventing collisions and allowing for cool security-group stuff
+api_key_name: "{{ prefix }}-api-key"
+api_gateway_stage: dev
+s3_key: "{{ module_name }}.zip"

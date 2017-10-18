@@ -1,0 +1,32 @@
+---
+#
+# Base SAM (Serverless Application Model) Cloudfront template
+#
+#
+AWSTemplateFormatVersion: 2010-09-09
+Transform: AWS::Serverless-2016-10-31
+Resources:
+  "simpleRequest":
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: "simpleRequest.handler"
+      Runtime: nodejs6.10
+      CodeUri: s3://testr-lambda/simpleRequest.zip
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: "/simpleRequest"
+            Method: get
+  "trivia":
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: "trivia.handler"
+      Runtime: nodejs6.10
+      CodeUri: s3://testr-lambda/trivia.zip
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: "/trivia"
+            Method: get

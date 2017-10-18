@@ -1,0 +1,21 @@
+---
+- name: Create s3 bucket
+  s3_bucket:
+    name: "{{ lambda_s3_bucket }}"
+    state: present
+    region: "{{ aws.default_region }}"
+
+- name: fetch local zip files
+  shell: cd .tmp_lambda_dir; find *.zip | sed 's/\.zip$//1'
+  register: zip_files
+  failed_when: zip_files.stdout_lines | length <= 0
+
+- name: sync local Lambda modules with s3
+  s3_sync:
+    bucket: "{{ lambda_s3_bucket }}"
+    region: "{{ aws.default_region }}"
+    file_root: "{{ playbook_dir }}/.tmp_lambda_dir"
+    # permission: authenticated-read ## should implement this. Lambda needs to be able to read (some IAM shenanigans would allow this no doubt)
+    include: "*.zip"
+    file_change_strategy: date_size
+    delete: yes # removes remote files not in local file root

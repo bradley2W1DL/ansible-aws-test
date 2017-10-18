@@ -1,0 +1,40 @@
+---
+- name: remove existing dist/ directory
+  file:
+    path: "{{ path }}/dist"
+    state: absent
+
+- name: Babel transpile code from es6
+  shell: babel {{ path }}/src -d {{ path }}/dist
+
+- name: Find package.json
+  shell: test -f package.json; echo $?
+  register: package_found
+  args:
+    chdir: "{{ path }}"
+
+- name: copy package.json (if present)
+  shell: cp ./package.json ./dist/package.json
+  args:
+    chdir: "{{ path }}"
+  when: package_found == 0 # true
+
+- name: install npm production modules
+  shell: npm install --production
+  args:
+    chdir: "{{ path }}/dist"
+
+- name: remove package.json after npm install
+  file:
+    path: "{{ path }}/dist/{{ package_file }}"
+    state: absent
+  with_items:
+    - package.json
+    - package-lock.json
+  loop_control:
+    loop_var: package_file
+
+- name: Zip up the {{ function }}/dist directory
+  shell: zip -r {{ playbook_dir }}/.tmp_lambda_dir/{{ function }}.zip *
+  args:
+    chdir: "{{ path }}/dist"
