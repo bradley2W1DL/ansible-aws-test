@@ -19,6 +19,12 @@ Running the playbook above will:
 - package the SAM template into a cloudformation template
 - deploy the stack to AWS
 
+When developing new lambda functions:
+- create a new directory in ./lambda_functions dir
+  - the name of the directory must equal the name of your function
+- within new directory, create a src
+- Todo ---> finish writing this bit
+
 To edit the secrets files:
 ```bash
 ansible-vault edit secrets/development.yml --vault-password-file ~/.aws-vault.txt

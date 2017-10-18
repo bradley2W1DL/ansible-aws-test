@@ -1,0 +1,30 @@
+---
+#
+# Playbook will de-provision all resources in a given cloudformation stack
+# either by the
+#
+- hosts: localhost
+  vars:
+    env: development
+  vars_files:
+    - "secrets/{{ env }}.yml"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ aws.access_key }}"
+    AWS_SECRET_ACCESS_KEY: "{{ aws.secret_key }}"
+    AWS_DEFAULT_REGION: "{{ aws.default_region }}"
+  connection: local
+
+  tasks:
+  - name: install aws-cli
+    homebrew:
+      name: awscli
+      state: present
+  - name: check for AWS connection
+    shell: aws s3 ls
+    register: aws_result
+    failed_when: aws_result.rc != 0
+
+  - name: tear down cloudformation stack
+    cloudformation:
+      stack_name: "{{ prefix }}-stack"
+      state: absent
