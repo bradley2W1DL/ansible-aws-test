@@ -1,4 +1,4 @@
-##Aws SAM generator
+## Aws SAM generator
 just write your lambda files and we can automate the rest
 ___
 
@@ -9,7 +9,8 @@ To run basic playbook use:
 ```bash
 ansible-playbook deploy.yml --vault-password-file=~/.aws-vault.txt -v
 ```
-- _ps: you'll need to get the super secret password to put into the vault file in order to decrypt the secrets files_
+- _ps: you'll need to get the super secret password to put into the vault file in order to decrypt the existing secrets files_
+- __Or__, you can just create a new [ansible-vault](http://docs.ansible.com/ansible/latest/vault.html) encrypted files to store your secrets.
 
 Running the playbook above will:
 - transpile all es6 code into es5 and bundle it up with npm production dependencies.
