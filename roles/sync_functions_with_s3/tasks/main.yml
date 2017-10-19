@@ -4,6 +4,7 @@
     name: "{{ lambda_s3_bucket }}"
     state: present
     region: "{{ aws.default_region }}"
+    versioning: yes
 
 - name: fetch local zip files
   shell: cd .tmp_lambda_dir; find *.zip | sed 's/\.zip$//1'

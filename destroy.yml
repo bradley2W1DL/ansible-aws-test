@@ -23,6 +23,16 @@
     register: aws_result
     failed_when: aws_result.rc != 0
 
+  - name: delete all versions from s3 bucket
+    script: scripts/s3_versioned_delete.sh {{ lambda_s3_bucket }}
+    register: delete_script_output
+
+  - name: destroy s3 bucket
+    s3_bucket:
+      name: "{{ lambda_s3_bucket }}"
+      state: absent
+      force: yes
+
   - name: tear down cloudformation stack
     cloudformation:
       stack_name: "{{ stack_name }}"

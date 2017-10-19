@@ -38,7 +38,7 @@ Then you must generate a SAM template pointing to the local zip files
 - run the playbook to generate `sam_template.yml` 
     - `ansible-playbook bundle_local.yml -v`
 - launch the sam local api
-    - `sam local start-api -t sam_template.yml`
+    - `sam local start-api -t sam_template_local.yml`
     - this will output the api routes generated (dope!)
     - test away in your browser, `curl`, postman, or whatever's clever
 - for hot-reloading you can ask `babel` to watch for changes to the src file

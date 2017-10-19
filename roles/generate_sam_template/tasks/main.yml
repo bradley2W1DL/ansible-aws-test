@@ -20,10 +20,17 @@
     function: "{{ item }}"
   with_items: "{{ lambda_functions }}"
 
+- name: Assemble fragments into local dev template yaml
+  assemble:
+    src: .tmp_fragments/
+    dest: ./sam_template_local.yml
+  when: local_dev
+
 - name: Assemble fragments into template yaml
   assemble:
     src: .tmp_fragments/
     dest: ./sam_template.yml
+  when: not local_dev
 
 - name: remove tmp_directory
   file:

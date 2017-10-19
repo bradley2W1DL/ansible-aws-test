@@ -12,27 +12,25 @@ var url = "https://opentdb.com/api.php?amount=5&category=25&difficulty=medium&ty
 
 
 exports.handler = function (event, context, callback) {
-  console.log(event);
+
   _https2.default.get(url, function (resp) {
     resp.setEncoding("utf8");
     var body = '';
+    console.log('request triggered');
     resp.on("data", function (data) {
       body += data;
     });
     resp.on("end", function () {
       callback(null, {
         statusCode: 200,
-        body: JSON.stringify(body)
+        body: body
       });
     });
     resp.on("error", function (error) {
-      var jsonError = JSON.stringify(error);
-      callback(jsonError, {
-        statusCode: error.status,
-        body: jsonError
+      callback(null, {
+        statusCode: 500,
+        body: error
       });
     });
   });
 };
-
-// exports.handler = (event, context, callback) => apiCall(event, callback);
