@@ -49,7 +49,7 @@
       state: absent
 
   #
-  # New approach: use AWS SAM template to provision resources
+  # Use AWS SAM template to provision cloudformation resources
   #
   - name: fetch files from s3 bucket
     shell: aws s3 ls s3://{{ lambda_s3_bucket }} | grep \.zip$ | awk '{print $4}' | sed 's/\.zip//1'

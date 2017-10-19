@@ -16,7 +16,7 @@
     bucket: "{{ lambda_s3_bucket }}"
     region: "{{ aws.default_region }}"
     file_root: "{{ playbook_dir }}/.tmp_lambda_dir"
-    # permission: authenticated-read ## TODO implement this. Lambda needs to be able to read (some IAM shenanigans would allow this no doubt)
+    permission: public-read # this might need to be more restricted
     include: "*.zip"
     file_change_strategy: date_size
     delete: yes # removes remote files not in local file root

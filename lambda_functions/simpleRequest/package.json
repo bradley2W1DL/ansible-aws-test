@@ -1,8 +1,0 @@
-{
-  "name": "simpleRequest",
-  "description": "super basic API get request to test all this lambda biz",
-  "version": "1.0.0",
-  "dependencies": {
-    "axios": "^0.16.2"
-  }
-}
