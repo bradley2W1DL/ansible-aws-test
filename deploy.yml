@@ -43,25 +43,31 @@
   - include_role:
       name: sync_functions_with_s3
 
+  - name: remove .tmp_lambda_dir
+    file:
+      path: .tmp_lambda_dir
+      state: absent
+
   #
   # New approach: use AWS SAM template to provision resources
   #
   - name: fetch files from s3 bucket
-      shell: aws s3 ls s3://{{ lambda_s3_bucket }} | grep \.zip$ | awk '{print $4}'
-      register: lambda_files
+    shell: aws s3 ls s3://{{ lambda_s3_bucket }} | grep \.zip$ | awk '{print $4}' | sed 's/\.zip//1'
+    register: lambda_files
 
   - include_role:
       name: generate_sam_template
     vars:
       lambda_functions: "{{ lambda_files.stdout_lines }}"
 
-  - name: generate cloud formation template
-    shell: aws cloudformation deploy --template-file serverless_output.yml --stack-name testrStack --capabilities CAPABILITY_IAM
 
-  - name: launch cloudformation stack
-    cloudformation:
-      stack_name: "{{ prefix }}-stack"
-      state: present
-      region: "{{ aws.default_region }}"
-      template: serverless_output.yml
+  - name: generate cloudformation template
+    shell: aws cloudformation package --template-file sam_template.yml --output-template-file serverless_output.yml --s3-bucket {{ lambda_s3_bucket }}
 
+  - name: deploy cloudformation stack
+    shell: aws cloudformation deploy --template-file serverless_output.yml --stack-name {{ stack_name }} --capabilities CAPABILITY_IAM
+
+  - name: remove serverless_output
+    file:
+      name: ./serverless_output.yml
+      state: absent

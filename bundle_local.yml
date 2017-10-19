@@ -1,0 +1,17 @@
+---
+- hosts: localhost
+  connection: local
+
+  tasks:
+  - name: fetch lambda functions
+    shell: cd lambda_functions && find * -maxdepth 0 -type d
+    register: functions
+
+  - include_role:
+      name: bundle_lambda_functions
+
+  - include_role:
+      name: generate_sam_template
+    vars:
+      lambda_functions: "{{ functions.stdout_lines }}"
+      local_dev: true

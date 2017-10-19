@@ -3,3 +3,5 @@
 
 # ignore hidden dirs
 .tmp_*
+
+node_modules/

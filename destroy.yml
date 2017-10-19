@@ -1,7 +1,6 @@
 ---
 #
 # Playbook will de-provision all resources in a given cloudformation stack
-# either by the
 #
 - hosts: localhost
   vars:
@@ -26,5 +25,5 @@
 
   - name: tear down cloudformation stack
     cloudformation:
-      stack_name: "{{ prefix }}-stack"
+      stack_name: "{{ stack_name }}"
       state: absent

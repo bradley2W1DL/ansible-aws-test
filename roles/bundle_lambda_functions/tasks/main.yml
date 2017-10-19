@@ -4,6 +4,14 @@
     path: "{{ playbook_dir }}/.tmp_lambda_dir"
     state: directory
 
+- name: ensure babel-preset-env is present
+  shell: cat package.json | jq -r '.devDependencies["babel-preset-env"] | length'
+  register: babel_env_check
+
+- name: install babel-preset-env package
+  shell: npm install babel-preset-env --save-dev
+  when: babel_env_check.stdout == 0
+
 - name: fetch list of Lambda function directories
   shell: cd {{ playbook_dir }}/lambda_functions && find * -maxdepth 0 -type d
   register: function_dirs

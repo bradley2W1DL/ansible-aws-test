@@ -1,5 +1,5 @@
-# cfs-liason
-serverless architecture to connect to external services, parse data, and persist the results
+##Aws SAM generator
+just write your lambda files and we can automate the rest
 ___
 
 ## package err'y thing up
@@ -7,7 +7,7 @@ We're using babel via ansible to transpile all the functions placed into the `la
 
 To run basic playbook use:
 ```bash
-ansible-playbook deploy.yml --vault-password-file=~/.aws-vault.txt
+ansible-playbook deploy.yml --vault-password-file=~/.aws-vault.txt -v
 ```
 - _ps: you'll need to get the super secret password to put into the vault file in order to decrypt the secrets files_
 
@@ -29,3 +29,17 @@ To edit the secrets files:
 ```bash
 ansible-vault edit secrets/development.yml --vault-password-file ~/.aws-vault.txt
 ```
+---
+### Local Development
+aws has a slick sdk for testing SAM applications locally, aptly named [aws-sam-local](https://github.com/awslabs/aws-sam-local)
+
+To use this sdk for development and testing follow the prompts in the github readme to get `aws-sam-local` installed.
+Then you must generate a SAM template pointing to the local zip files
+- run the playbook to generate `sam_template.yml` 
+    - `ansible-playbook bundle_local.yml -v`
+- launch the sam local api
+    - `sam local start-api -t sam_template.yml`
+    - this will output the api routes generated (dope!)
+    - test away in your browser, `curl`, postman, or whatever's clever
+- for hot-reloading you can ask `babel` to watch for changes to the src file
+    - `cd lambda_functions/<your_function_here>; babel src -d dist -w`

@@ -1,0 +1,12 @@
+{
+  "name": "ansible-aws-test",
+  "version": "1.0.0",
+  "description": "Basic test to provision cloudformation SAM stack",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bradley2W1DL/ansible-aws-test.git"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1"
+  }
+}

@@ -2,11 +2,13 @@
 #
 # Base SAM (Serverless Application Model) Cloudfront template
 #
-#
 AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Resources:
-  "simpleRequest":
+  #
+  # resources are generated programmatially from lambda files in s3 bucket
+  #
+  simpleRequest:
     Type: AWS::Serverless::Function
     Properties:
       Handler: "simpleRequest.handler"
@@ -18,7 +20,19 @@ Resources:
           Properties:
             Path: "/simpleRequest"
             Method: get
-  "trivia":
+  superBasic:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: "superBasic.handler"
+      Runtime: nodejs6.10
+      CodeUri: s3://testr-lambda/superBasic.zip
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: "/superBasic"
+            Method: get
+  trivia:
     Type: AWS::Serverless::Function
     Properties:
       Handler: "trivia.handler"

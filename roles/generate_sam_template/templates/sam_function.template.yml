@@ -1,9 +1,13 @@
-  "{{ function }}":
+  {{ function }}:
     Type: AWS::Serverless::Function
     Properties:
       Handler: "{{ function }}.handler"
       Runtime: nodejs6.10
+{% if local_dev|default(false) %}
+      CodeUri: lambda_functions/{{ function }}/dist/
+{% else %}
       CodeUri: s3://{{ lambda_s3_bucket }}/{{ function }}.zip
+{% endif %}
       Events:
         GetResource:
           Type: Api

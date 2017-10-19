@@ -10,7 +10,7 @@
 - name: move template_base into tmp directory
   template:
     src: template_base.yml
-    dest: .tmp_fragments/aaaa_template_base.yml
+    dest: .tmp_fragments/aaaa_template_base.yml # aaaa_ prefix to ensure alphabetic file ordering
 
 - name: evaluate j2 templating
   template:
