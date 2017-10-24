@@ -1,0 +1,28 @@
+#
+# Creates a Lambda function that then watches for updates to it's own
+# s3 bucket and updates the apps lambda functions when they are changed
+#
+  lambdaWatcher:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambdaWatcher.handler
+      Runtime: nodejs6.10
+{% if local_dev|default(false) %}
+      CodeUri: lambda_functions/lambdaWatcher/dist/
+{% else %}
+      CodeUri: s3://{{ lambda_s3_bucket }}/lambdaWatcher.zip
+{% endif %}
+      Policies: AmazonS3ReadOnlyAccess
+      Events:
+        zipFunctionUpload:
+          Type: S3
+          Properties:
+            Bucket: !Ref Bucket
+            Events: s3:ObjectCreated:Put
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.zip'
+  Bucket:
+    Type: AWS::S3::Bucket

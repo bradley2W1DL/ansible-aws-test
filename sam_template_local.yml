@@ -8,18 +8,6 @@ Resources:
   #
   # resources are generated programmatially from lambda files in s3 bucket
   #
-  simpleRequest:
-    Type: AWS::Serverless::Function
-    Properties:
-      Handler: "simpleRequest.handler"
-      Runtime: nodejs6.10
-      CodeUri: lambda_functions/simpleRequest/dist/
-      Events:
-        GetResource:
-          Type: Api
-          Properties:
-            Path: "/simpleRequest"
-            Method: get
   superBasic:
     Type: AWS::Serverless::Function
     Properties:
@@ -44,3 +32,21 @@ Resources:
           Properties:
             Path: "/trivia"
             Method: get
+#
+# Creates a Lambda function that then watches for updates to it's own
+# s3 bucket and updates the apps lambda functions when they are changed
+#
+  lambdaWatcher:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambdaWatcher.handler
+      Runtime: nodejs6.10
+      CodeUri: lambda_functions/lambdaWatcher/dist/
+      Policies: AmazonS3ReadOnlyAccess
+      Events:
+        zipFunctionUpload:
+          Type: S3
+          Properties:
+            Bucket: testr-lambda
+            Events: s3:ObjectCreated:Put
+            Filter: "*.zip"

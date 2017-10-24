@@ -1,0 +1,7 @@
+{
+  "name": "lambda-watcher",
+  "version": "0.1.0",
+  "devDependencies": {
+    "aws-sdk": "^2.137.0"
+  }
+}

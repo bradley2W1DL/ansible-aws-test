@@ -13,7 +13,7 @@ Resources:
     Properties:
       Handler: "superBasic.handler"
       Runtime: nodejs6.10
-      CodeUri: s3://testr-lambda/superBasic.zip
+      CodeUri: s3://bradley-lambda/superBasic.zip
       Events:
         GetResource:
           Type: Api
@@ -25,10 +25,34 @@ Resources:
     Properties:
       Handler: "trivia.handler"
       Runtime: nodejs6.10
-      CodeUri: s3://testr-lambda/trivia.zip
+      CodeUri: s3://bradley-lambda/trivia.zip
       Events:
         GetResource:
           Type: Api
           Properties:
             Path: "/trivia"
             Method: get
+#
+# Creates a Lambda function that then watches for updates to it's own
+# s3 bucket and updates the apps lambda functions when they are changed
+#
+  lambdaWatcher:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: lambdaWatcher.handler
+      Runtime: nodejs6.10
+      CodeUri: s3://bradley-lambda/lambdaWatcher.zip
+      Policies: AmazonS3ReadOnlyAccess
+      Events:
+        zipFunctionUpload:
+          Type: S3
+          Properties:
+            Bucket: !Ref Bucket
+            Events: s3:ObjectCreated:Put
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: '.zip'
+  Bucket:
+    Type: AWS::S3::Bucket

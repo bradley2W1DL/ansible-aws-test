@@ -7,10 +7,16 @@
     path: .tmp_fragments
     state: directory
 
-- name: move template_base into tmp directory
+- name: move template_base into tmp dir
   template:
     src: template_base.yml
     dest: .tmp_fragments/aaaa_template_base.yml # aaaa_ prefix to ensure alphabetic file ordering
+
+- name: move lambdaWatcher function into tmp dir
+  template:
+    src: lambdaWatcher.yml
+    dest: .tmp_fragments/lambdaWatcher.yml
+  when: not local_dev
 
 - name: evaluate j2 templating
   template:
@@ -18,6 +24,7 @@
     dest: .tmp_fragments/function_{{ item }}.yml
   vars:
     function: "{{ item }}"
+  when: item != "lambdaWatcher"
   with_items: "{{ lambda_functions }}"
 
 - name: Assemble fragments into local dev template yaml
