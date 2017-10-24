@@ -6,14 +6,30 @@ AWSTemplateFormatVersion: 2010-09-09
 Transform: AWS::Serverless-2016-10-31
 Resources:
   #
-  # resources are generated programmatially from lambda files in s3 bucket
+  # resources are generated programmatically from lambda files in s3 bucket
   #
+  lambdaWatcher:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: "lambdaWatcher.handler"
+      Runtime: nodejs6.10
+      CodeUri:
+        Bucket: !Ref s3Bucket
+        Key: "lambdaWatcher.zip"
+      Events:
+        GetResource:
+          Type: Api
+          Properties:
+            Path: "/lambdaWatcher"
+            Method: get
   superBasic:
     Type: AWS::Serverless::Function
     Properties:
       Handler: "superBasic.handler"
       Runtime: nodejs6.10
-      CodeUri: s3://bradley-lambda/superBasic.zip
+      CodeUri:
+        Bucket: !Ref s3Bucket
+        Key: "superBasic.zip"
       Events:
         GetResource:
           Type: Api
@@ -25,7 +41,9 @@ Resources:
     Properties:
       Handler: "trivia.handler"
       Runtime: nodejs6.10
-      CodeUri: s3://bradley-lambda/trivia.zip
+      CodeUri:
+        Bucket: !Ref s3Bucket
+        Key: "trivia.zip"
       Events:
         GetResource:
           Type: Api
@@ -41,18 +59,24 @@ Resources:
     Properties:
       Handler: lambdaWatcher.handler
       Runtime: nodejs6.10
-      CodeUri: s3://bradley-lambda/lambdaWatcher.zip
+      CodeUri: s3://round-3-lambda/lambdaWatcher.zip
       Policies: AmazonS3ReadOnlyAccess
       Events:
         zipFunctionUpload:
           Type: S3
           Properties:
-            Bucket: !Ref Bucket
+            Bucket: !Ref s3Bucket
             Events: s3:ObjectCreated:Put
             Filter:
               S3Key:
                 Rules:
                   - Name: suffix
                     Value: '.zip'
-  Bucket:
+#
+# Defines the s3 bucket SAM / Cloudformation should create
+#
+  s3Bucket:
     Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "round-3-lambda"
+      # see: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html

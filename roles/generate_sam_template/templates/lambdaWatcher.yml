@@ -17,12 +17,10 @@
         zipFunctionUpload:
           Type: S3
           Properties:
-            Bucket: !Ref Bucket
+            Bucket: !Ref s3Bucket
             Events: s3:ObjectCreated:Put
             Filter:
               S3Key:
                 Rules:
                   - Name: suffix
                     Value: '.zip'
-  Bucket:
-    Type: AWS::S3::Bucket

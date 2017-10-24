@@ -6,7 +6,9 @@
 {% if local_dev|default(false) %}
       CodeUri: lambda_functions/{{ function }}/dist/
 {% else %}
-      CodeUri: s3://{{ lambda_s3_bucket }}/{{ function }}.zip
+      CodeUri:
+        Bucket: !Ref s3Bucket
+        Key: "{{ function }}.zip"
 {% endif %}
       Events:
         GetResource:

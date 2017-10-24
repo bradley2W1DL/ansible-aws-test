@@ -1,0 +1,8 @@
+#
+# Defines the s3 bucket SAM / Cloudformation should create
+#
+  s3Bucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: "{{ lambda_s3_bucket }}"
+      # see: http://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-s3-bucket.html

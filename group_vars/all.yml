@@ -1,6 +1,6 @@
 # prefix can be set by adding --extra-vars
 prefix: testr
-lambda_s3_bucket: "{{prefix}}-lambda"
+lambda_s3_bucket: "{{ prefix }}-lambda"
 #
 # change stack name to the microservice app (cfs-liason) or whatever
 #
@@ -12,5 +12,6 @@ rds_table_name: "{{ prefix}}-postgres-table"
 # name or something like that. preventing collisions and allowing for cool security-group stuff
 #
 api_key_name: "{{ prefix }}-api-key"
+other_var: this-thing{{ prefix }}
 api_gateway_stage: dev
 

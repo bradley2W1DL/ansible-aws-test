@@ -16,8 +16,16 @@
   template:
     src: lambdaWatcher.yml
     dest: .tmp_fragments/lambdaWatcher.yml
-  when: not local_dev
+  when:
+    - not local_dev
+    - lambda_functions is defined
 
+- name: move s3_bucket resource into tmp dir
+  template:
+    src: s3_bucket.yml
+    dest: .tmp_fragments/zzz_s3_bucket.yml
+
+## If there are any lambda_functions passed
 - name: evaluate j2 templating
   template:
     src: sam_function.template.yml
@@ -26,6 +34,8 @@
     function: "{{ item }}"
   when: item != "lambdaWatcher"
   with_items: "{{ lambda_functions }}"
+  when: lambda_functions is defined
+##
 
 - name: Assemble fragments into local dev template yaml
   assemble:

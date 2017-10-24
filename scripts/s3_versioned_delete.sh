@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 
-#
+# # #
 # script pulled from https://gist.github.com/weavenet/f40b09847ac17dd99d16
-#
+# completely empties an s3 bucket of all objects and their associated versions and markers
+# # #
 
 bucket=$1
 

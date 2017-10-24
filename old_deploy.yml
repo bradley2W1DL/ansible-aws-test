@@ -32,74 +32,63 @@
     failed_when: aws_result.rc != 0
 
   #
-  # Generate the base sam template
-  #
-  - include_role:
-      name: generate_sam_template
-    vars:
-      local_dev: false
-    tags:
-      - cloudformation
-      - base_template
-
-  - name: generate cloudformation base template
-    shell: aws cloudformation package --template-file sam_template.yml --output-template-file serverless_output.yml --s3-bucket {{ lambda_s3_bucket }}
-    tags: cloudformation-base
-
-  #
-  # Deploy base stack to create s3 bucket (and eventually RDS instance)
-  #
-  - name: deploy cloudformation base stack
-    shell: aws cloudformation deploy --template-file serverless_output.yml --stack-name {{ stack_name }} --capabilities CAPABILITY_IAM
-    register: cf_deployment
-    failed_when: "'No changes to deploy' not in cf_deployment.stderr and cf_deployment.stderr != ''"
-    tags: cloudformation-base
-
-  #
   # Bundle up all functions in /lambda_functions dir
-  # Sync functions with generated s3 bucket
   #
   - include_role:
       name: bundle_lambda_functions
 
+  #
+  # Create s3 bucket (if needed) and sync files
+  #
+  # TODO GET Cloudformation to do this
   - include_role:
       name: sync_functions_with_s3
 
+  - name: remove .tmp_lambda_dir
+    file:
+      path: .tmp_lambda_dir
+      state: absent
+
   #
-  # Regenerate SAM template to include Lambda functions
+  # Use AWS SAM template to provision cloudformation resources
   #
-  - name: re-fetch lambda function names
-    shell: cd .tmp_lambda_dir; find *.zip | sed 's/\.zip$//1'
-    register: zip_files
+  - name: fetch files from s3 bucket # change to local .tmp_lambda_dir
+    shell: aws s3 ls s3://{{ lambda_s3_bucket }} | grep \.zip$ | awk '{print $4}' | sed 's/\.zip//1'
+    register: lambda_files
     tags:
       - cloudformation
       - sam_template
 
-  - name: display zip_files DEBUG
-    debug: var=zip_files.stdout_lines
-    tags: sam_template
-
   - include_role:
       name: generate_sam_template
     vars:
-      lambda_functions: "{{ zip_files.stdout_lines }}"
+      lambda_functions: "{{ lambda_files.stdout_lines }}"
       local_dev: false
     tags:
       - cloudformation
       - sam_template
 
-  - name: generate cloudformation full template
+  - name: generate cloudformation template
     shell: aws cloudformation package --template-file sam_template.yml --output-template-file serverless_output.yml --s3-bucket {{ lambda_s3_bucket }}
     tags: cloudformation
 
-  - name: deploy cloudformation full stack
+  - name: deploy cloudformation stack
     shell: aws cloudformation deploy --template-file serverless_output.yml --stack-name {{ stack_name }} --capabilities CAPABILITY_IAM
     register: cf_deployment
     ignore_errors: yes
+    tags: cloudformation
+
+  - name: fetch the name of generated s3 bucket
+
+  - name: regenerate sam_template with lambda_functions
+
+  - name: check for cloudformation deployment failure
+    fail:
+      msg: AWS Cloudformation deployment failed
+    when: "'No changes to deploy' not in cf_deployment.stderr and cf_deployment.stderr != ''"
     tags: cloudformation
 
   - name: remove serverless_output
     file:
       name: ./serverless_output.yml
       state: absent
-    tags: cloudformation
